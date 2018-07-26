@@ -1,0 +1,56 @@
+# Class that creates a Seat object, that has a price and avalibility of the seat 
+class Seat:
+    '''superclass that has variables for the price and avalibility of the seat  
+    '''
+    def __init__(self, price = 0): # constructor initialize price and taken to default values
+        self._price = price 
+        self._taken = False
+        
+    def getExtra(self):                  # abstract method to force the subclasses to have the same # of parameters of the abstract method
+                                         # i.e force the format of the subclasses 
+                                         # when called will print out the seat allow with the perk(if any) 
+                                         
+        raise NotImplementedError()
+    
+    def getPrice(self):  # method that returns the price of the the seats 
+        return self._price
+    
+    def setPrice(self, p):  # method that sets the price of the seat
+        self._price = p
+        
+    def isTaken(self):      # method that returns True if seat is taken, False otherwise  
+        return self._taken == True
+    
+    def setTaken(self, boolean): # method to set the status of taken variable 
+        self._taken = boolean
+   
+# SubClasses of Seat   
+class Premium(Seat): 
+    '''subclass of Seat
+       seat that has the most perks associated with it 
+    '''
+    def __init__(self,price):
+        super().__init__(price) # call the constructor of Seat
+        
+    def getExtra(self): # implement the abstract class -- print out perks
+        print(": Premium Ticket -- bag full of swag, drinks, and popcorn included")
+    
+class Choice(Seat):
+    '''subclass of Seat
+       seat with the second most perks associated with it 
+    '''
+    def __init__(self, price):
+        super().__init__(price) # call the constructor of Seat
+        
+    def getExtra(self): # implement the abstract class -- print out perks
+        print(": Choice Ticket -- drinks or popcorn included")
+    
+class Regular(Seat):
+    '''subclass of Seat
+       cheapest seat with no perks associated with it 
+    '''
+    def __init__(self, price):
+        super().__init__(price) # call the constructor of Seat
+        
+    def getExtra(self): # implement the abstract class -- print out perks
+        print(": Regular Ticket -- enjoy the movie") 
