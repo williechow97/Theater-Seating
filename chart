@@ -1,0 +1,101 @@
+# Class that displays the chart and allows purchasing of seats 
+from seat import Seat, Choice, Premium, Regular 
+
+
+class Chart:   
+        
+    def __init__(self):     # constructor that inializes a list of Seat objects 
+        self._chart = [[]]   # initiates -- create a outside list but not the inside list 
+        fileNotFound = True
+        while fileNotFound:
+            try:
+                filename = input("Enter a file name or hit Enter for default lab7input2.txt: ")
+                if filename == '':  # set a default file if no file entered 
+                    filename = "lab7input2.txt"
+                with open(filename) as inputFile: # open the file
+                    #line = inputFile.readline()   # read the first line of the input file 
+                    fLine = [elem for elem in inputFile.readline().strip().split(' ')]  # list comprehesion -- read line from file, then 
+                                                                                        # creates a list to store the split elem of line 
+                    i = 0   # counter used to traverse the rows of the chart 
+                    for line in inputFile:  # read in each line of the file
+                        self._chart.append([]) # makes the list which will store the Seat objs 
+                        for elem in line.strip().split(' '):  # split the line into the individual prices 
+                            if elem in fLine:   # check to see if the price is valid...ie associated with a Seat obj
+                                if elem == fLine[0]: # seat is premium...create the obj
+                                    self._chart[i].append(Premium(elem))
+                                elif elem == fLine[1]:   # seat is choice...create the obj
+                                    self._chart[i].append(Choice(elem))
+                                elif elem == fLine[2]:   # seat is regular...create the obj 
+                                    self._chart[i].append(Regular(elem))
+                        i += 1  # increment counter to continue traversing the rows of the chart 
+                    
+                fileNotFound = False     # break out the while loop 
+            except FileNotFoundError:   # catch for if the file is not found...prompt the user for another file 
+                print("File not found")
+        
+        self.printChart()    # call printChart() to print the chart   
+        
+    def printChart(self):   
+        # method that prints seats out in a chart
+    
+        print("%25s" %"Price Chart")    # space the title of the chart 
+        print("%22s" %"Columns")     
+
+        for i in range(len(self._chart[0])):    # print out labels of column numbers
+            print("%7d" %(i + 1,), end='')
+        print('\nRow', end = " ")     
+        for i in range(len(self._chart[0])):   # seperate the column numbers from seat price
+            print("=" * 7, end='')
+        for i in range(len(self._chart) - 1):     # print out labels for the rows and the price of the seat
+            print('\n', i+1, "|" , end=' ')
+            for j in range(len(self._chart[i])):
+                if self._chart[i][j].isTaken() :   # check to see if the seat if taken or not
+                    print("%-7s" %self._chart[i][j].getPrice().rjust(3), end='') # print out the 'X' to indicate it is taken
+                else:
+                    print("%-7s" %("$" + self._chart[i][j].getPrice()).rjust(3), end='')
+        print()   
+        
+    def buySeat(self): 
+        # method that buys the user's seat
+        listTuples = []   # initialize list of tuples to hold the seat 
+        seatTuple = ()    # initialize a tuple to hold the row and column number of the desired seat 
+        total = 0    # variable to keep track of the total cost of the seat(s) purchased 
+        seat = ""    # initialize seat to be empty
+        counter = 1  # counter used to keep track the number of seats purchased
+        print("Available seats are shown with the price")
+        
+        while True:
+            try:
+                print("Enter row,col for seat", counter, "or 0 to exit: ")
+                seat = input()                  # prompt the user for the row and col of the seat  
+                if seat == '0'  or seat == '0,0':  # User has finished purchasing their seats, exit out of while loop 
+                    counter = counter - 1 
+                    break                 
+                seatTuple = seat.split(',')  # split the user's input and assign the values to the seatTuple
+                if int(seatTuple[0]) < 0 or int(seatTuple[1]) < 0:     # reject negative values as input
+                    print("Row/col can't be negative") 
+                elif int(seatTuple[0]) == 0 or int(seatTuple[1]) == 0:  # reject values of zero for row/col
+                    print("No zeroth row/col")
+                else: 
+                    # if the seat if not taken. compute the Total cost of the seat(s), set the seat as taken and update the "value". 
+                    if not self._chart[int(seatTuple[0]) -1 ][int(seatTuple[1]) - 1].isTaken():
+                        total = total + int(self._chart[int(seatTuple[0]) -1 ][int(seatTuple[1]) - 1].getPrice())
+                        self._chart[int(seatTuple[0]) - 1][int(seatTuple[1]) - 1].setPrice('X')
+                        listTuples.append(seatTuple)
+                        counter = counter + 1 
+                        self._chart[int(seatTuple[0]) -1 ][int(seatTuple[1]) - 1].setTaken(True)
+                    else:
+                        print("Seat taken") 
+                
+            except IndexError:  # catches out of range index 
+                print("Invalid row / col" )        
+            except ValueError:  # catches noninteger value input 
+                print("Must be an integer")
+            
+           
+        print("Your total: $" + str(total))     # total cost of the seat(s)
+        print("Your", counter, "seat(s) at")    # number of seats(s) purchased and coordinate location
+        for t in listTuples:        # traverse list and print elements into output 
+            print("Row " + str(t[0]) + " Column " + str(t[1]), end ='') 
+            self._chart[int(t[0]) -1 ][int(t[1]) - 1].getExtra()  # prints of specific perk associated with the obj
+        self.printChart()        
